@@ -101,14 +101,18 @@ int main() {
 
 		int base = 0;
 		MergeVector m_v_side = MergeVector::left;
-		for (int i = 0; base < v_size; ++i) {
+		for (int i = 0; base < v_size && i < v_size; ++i) {
 			base = i * 2 * merge_elements;
 
 			// Loop through all elements in intervals of 2 x `merge_elements`.
 			for (int first = 0, second = 0; first < merge_elements && second < merge_elements; ) {
 				cout << "first element: " << merge_left_v[base + first] << ", second: " << merge_left_v[base + merge_elements + second] << endl;
 				// Find lowest number and merge them in that order to the opposite merge-vector.
-				if (merge_left_v[base + first] < merge_left_v[base + merge_elements + second]) {
+				if (merge_left_v[base + first] == v_size - 1) { // Sole element in last batch. So just copy it. And break.
+					merge_right_v[base + first + second] = merge_left_v[base + first];
+					i = v_size;
+					break;
+				} else if (merge_left_v[base + first] < merge_left_v[base + merge_elements + second]) {
 					merge_right_v[base + first + second] = merge_left_v[base + first];
 					++first;
 				} else if (merge_left_v[base + first] > merge_left_v[base + merge_elements + second]) {
@@ -122,17 +126,17 @@ int main() {
 				}
 
 				// Did we get to the end of the segment? If so merge the other side.
-				if (first == merge_elements) {
+				if (first == merge_elements) { // End of first side.
 					for (; second < merge_elements; ++second) {
 						cout << "end of first elements" << endl;
 						merge_right_v[base + first + second] = merge_left_v[base + merge_elements + second];
 					}
 				}
 
-				if (second == merge_elements) {
+				if (second == merge_elements) { // End of second side.
 					for (; first < merge_elements; ++first) {
-						cout << "end of second elements" << endl;
-						merge_right_v[base + first + second] = merge_left_v[base + merge_elements + first];
+						cout << "end of second elements, base: " << base << ", merge_elements: " << merge_elements << ", first: " << first << ", number: " << merge_left_v[base + first] << endl;
+						merge_right_v[base + first + second] = merge_left_v[base + first];
 					}
 				}
 
@@ -148,13 +152,13 @@ int main() {
 	if (merge_right_v.size()) { // Only print if vector has elements.
 		first_element = true;
 		cout << "sorted" << endl;
-		for (auto ov : output_v) {
+		for (int i = 0; i < v_size; ++i) {
 			if (first_element == true) {
 				first_element = false;
 			} else {
 				cout << ", ";
 			}
-			cout << ov;
+			cout << merge_right_v[i];
 		}
 		cout << endl;
 	}
